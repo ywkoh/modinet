@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ModiNet Relay</title>
+    <style>
+      body { font-family: ui-sans-serif, system-ui; margin: 16px; }
+      .row { display: flex; gap: 8px; margin-bottom: 8px; }
+      input { flex: 1; padding: 6px; }
+      button { padding: 6px 10px; }
+      pre { background: #111; color: #eaeaea; padding: 12px; border-radius: 8px; max-height: 360px; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>ModiNet Relay Page</h1>
+
+    <div class="row"><label>WS</label><input id="ws" value="ws://localhost:8787" /></div>
+    <div class="row"><label>Session</label><input id="session" value="sess_demo" /></div>
+    <div class="row"><label>Relay Token</label><input id="relayToken" value="change-this-token" /></div>
+    <div class="row"><label>API Token</label><input id="apiToken" placeholder="agentApiToken" /></div>
+
+    <div class="row">
+      <button id="connect">Connect</button>
+      <button id="bridgePing">Bridge Ping</button>
+      <button id="status">Status</button>
+      <button id="clear">Clear</button>
+    </div>
+
+    <pre id="log"></pre>
+
+    <script>
+      const NAMESPACE = 'modinet-agent-relay-v1';
+      const reqId = () => `req_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+
+      let ws;
+      const logEl = document.getElementById('log');
+
+      function log(tag, payload) {
+        logEl.textContent = `[${new Date().toISOString()}] ${tag} ${payload ? JSON.stringify(payload) : ''}\n` + logEl.textContent;
+      }
+
+      function postToExtension(request) {
+        window.postMessage(
+          {
+            namespace: NAMESPACE,
+            direction: 'page-to-extension',
+            request,
+          },
+          window.location.origin,
+        );
+      }
+
+      function sendToServer(payload) {
+        if (!ws || ws.readyState !== WebSocket.OPEN) return;
+        ws.send(JSON.stringify(payload));
+      }
+
+      function connect() {
+        const wsBase = document.getElementById('ws').value.trim();
+        const session = document.getElementById('session').value.trim();
+        const token = document.getElementById('relayToken').value.trim();
+        const wsUrl = new URL(wsBase);
+        wsUrl.searchParams.set('role', 'relay');
+        wsUrl.searchParams.set('sessionId', session);
+        wsUrl.searchParams.set('token', token);
+
+        ws = new WebSocket(wsUrl.toString());
+        ws.addEventListener('open', () => log('ws.open'));
+        ws.addEventListener('close', (e) => log('ws.close', { code: e.code, reason: e.reason }));
+        ws.addEventListener('message', (event) => {
+          const payload = JSON.parse(event.data);
+          log('ws.in', payload);
+          postToExtension(payload.request || payload);
+        });
+      }
+
+      window.addEventListener('message', (event) => {
+        if (event.source !== window) return;
+        const data = event.data;
+        if (!data || data.namespace !== NAMESPACE || data.direction !== 'extension-to-page') {
+          return;
+        }
+        log('ext.in', data);
+        sendToServer(data);
+      });
+
+      document.getElementById('connect').addEventListener('click', connect);
+
+      document.getElementById('bridgePing').addEventListener('click', () => {
+        postToExtension({
+          request_id: reqId(),
+          operation: 'bridge.ping',
+          args: {},
+        });
+      });
+
+      document.getElementById('status').addEventListener('click', () => {
+        const token = document.getElementById('apiToken').value.trim();
+        postToExtension({
+          request_id: reqId(),
+          operation: 'status',
+          auth_token: token,
+          args: {},
+        });
+      });
+
+      document.getElementById('clear').addEventListener('click', () => {
+        logEl.textContent = '';
+      });
+    </script>
+  </body>
+</html>
