@@ -1,4 +1,3 @@
-
 # ModiNet Agent Automation API
 
 ModiNet now supports a background message API for automation agents.
@@ -70,7 +69,7 @@ Store these in `chrome.storage.local` before using the API.
 Also update `public/manifest.json`:
 
 - `externally_connectable.ids` must include your companion extension ID.
-- The shipped placeholder (`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`) is a deny-by-default value.
+- Keep this allowlist minimal per environment and avoid broad/shared IDs.
 
 ## Agent rule fields
 
@@ -105,3 +104,17 @@ Write operations require `args.if_match`.
 - Rules created by agents are tagged with `agentGroup` and `agentRuleId`.
 - Existing manual rules continue to work unchanged.
 - Delete is intentionally not exposed in this API.
+
+
+## WebSocket Relay mode (Method 2)
+
+이 모드는 웹페이지(`relay.html`)를 브리지로 사용해 Agent 요청을 확장으로 전달합니다.
+
+필수 storage 설정:
+
+- `agentApiEnabled: true`
+- `agentApiToken: "<secret>"`
+- `agentRelayEnabled: true`
+- `agentRelayAllowedOrigins: ["https://relay.example.com"]`
+
+메시지 포맷은 `docs/WEBSOCKET_RELAY.md`를 따르며, 브리지 스크립트는 `src/content/agentRelayBridge.js` 입니다.
