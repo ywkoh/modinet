@@ -91,3 +91,16 @@ Do **not** publish:
 - Real production tokens
 - Internal extension IDs tied to sensitive environments
 - Environment-specific rule payloads containing private endpoints
+
+
+
+---
+
+## 8) WebSocket Relay-specific Controls
+
+Relay 모드에서는 아래 통제가 추가로 필요합니다.
+
+- `agentRelayEnabled`를 기본 false로 유지
+- `agentRelayAllowedOrigins`를 정확한 origin으로만 설정
+- relay 페이지에서 사용하는 `auth_token`은 단기 토큰으로 운용
+- relay 서버는 메시지 중계만 수행하고 비즈니스 로직을 두지 않기
