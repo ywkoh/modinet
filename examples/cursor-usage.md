@@ -78,3 +78,4 @@ Before copying this content to an external public repo:
 - Replace internal hostnames with placeholders.
 - Keep examples minimal and non-sensitive.
 - Validate that docs match the currently shipped API fields.
+

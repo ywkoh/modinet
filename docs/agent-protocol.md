@@ -114,6 +114,7 @@ The exact list can grow, but agents should handle these classes:
 - `NOT_FOUND` — requested rule/group not found.
 - `ETAG_MISMATCH` — optimistic lock conflict.
 - `VALIDATION_ERROR` — payload schema failed validation.
+- `RULE_LIMIT_EXCEEDED` — free limit exceeded and license gate denied creation.
 - `INTERNAL_ERROR` — unexpected runtime failure.
 
 Agent best practice: branch by `error.code`, log `request_id`, and include last observed `rules_etag`.

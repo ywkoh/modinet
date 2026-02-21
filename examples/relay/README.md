@@ -5,15 +5,20 @@
 ## 1) Relay server 실행
 
 ```bash
-npm i ws
-RELAY_SHARED_TOKEN=change-this-token node examples/relay/ws-relay-server.mjs
+RELAY_SHARED_TOKEN=change-this-token npm run relay:server
 ```
 
 ## 2) Relay page 열기
 
-정적 파일 서버에서 `examples/relay/relay.html`을 열고 아래 값을 맞춥니다.
+아래 명령으로 로컬 페이지 서버를 실행한 뒤 `http://127.0.0.1:5500`을 엽니다.
 
-- WS URL: `ws://localhost:8787`
+```bash
+npm run relay:page
+```
+
+relay 페이지에서 아래 값을 맞춥니다.
+
+- WS URL: `ws://127.0.0.1:8787`
 - Session ID: 임의 값
 - Token: `change-this-token`
 - Target Extension ID: ModiNet extension id
@@ -31,7 +36,8 @@ chrome.storage.local.set({
 });
 ```
 
+`agentRelayAllowedOrigins`를 설정하면 해당 origin에 bridge script가 runtime 등록됩니다.
+
 ## 4) Ping 테스트
 
 relay 페이지의 Ping 버튼을 누르면 `bridge.ping` 응답, 이어서 `status` 호출 결과가 로그에 보여야 합니다.
-

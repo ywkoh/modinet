@@ -144,3 +144,4 @@ Agents should pre-validate before sending:
 - Header mutation legality for restricted headers.
 
 Pre-validation reduces failed writes and avoids noisy retries.
+
